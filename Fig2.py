@@ -1,3 +1,11 @@
+"""
+Script to generate panels for Figure 2
+
+Henrik Linden 2022
+Rune Berg Lab, University of Copenhagen
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 from spinalsim import *
@@ -5,29 +13,30 @@ from astropy.stats.circstats import circcorrcoef,circmean
 plt.close('all')
 plt.ion()
 
-### Set up simulation
+# Define neuronal parameters
 neuron_params = {
-    'tau_V' : 50.,
-    'seed' : 5,
-    'stim_func' : stim_varying_common,
-	'gain_func' : gain_const_common,
-	'I_e':20.,
-    'noise_ampl' : 4.,
-    'f_V_func':tanh_f_V,
-    'threshold':20.,
-    'gain': 1.2,
-    'fmax' : 50.,
-    'V_init':0.,
-    't_steps' : 10000,
+    'tau_V' : 50., # combined neuronal and synaptic timescale (ms)
+    'seed' : 5, # random seed for noise generator
+    'stim_func' : stim_varying_common, #defines type of input I_e
+	'gain_func' : gain_const_common, # defines type of gain
+	'I_e':20., # external (synaptic) input
+    'noise_ampl' : 4., # standard deviation of neuronal noise term
+    'f_V_func':tanh_f_V, # firing rate function 
+    'threshold':20., # threshold V_th (mV)
+    'gain': 1.2, # default gain
+    'fmax' : 50., # maximal firing, relative to threshold (1/s)
+    'V_init':0., # initial value for membrane potential
+    't_steps' : 10000, # simulation time (ms)
     }
 
+# Define network connectivity parameters
 conn_params = {
-    'N' : 200,
-    'C' : .1,
-    'frac_inh':.5,
-    'g':1.,
-    'W_radius':1.0,
-    'seed':1,
+    'N' : 200, # number of neurons
+    'C' : .1, # pair-wise connection probability
+    'frac_inh':.5, # fraction of inhibitory neurons
+    'g':1., # strength of inhibitory synaptic weight, relative to excitatory
+    'W_radius':1.0, # expected spectral radius
+    'seed':1, # random seed for generating network connectivity 
 }
 
 # Generate network connectivity
@@ -42,7 +51,6 @@ osc_mode = np.conj(eigvecs[:,max_idx])
 neuron_phase = np.angle(osc_mode)
 neuron_ampl = np.abs(osc_mode)
 phase_sort = np.argsort(neuron_phase)
-
 
 # Set up input vector
 stim_start = 1000
@@ -78,7 +86,7 @@ slope_at_rest = calc_slope_at_f_V(0.,.1,f_V_func,threshold,gain,fmax)
 slope_at_input = calc_slope_at_f_V(I_e,.1,f_V_func,threshold,gain,fmax)
 slope_above_one = np.where(slope_vec>1.)[0]
 
-#### Formate Figure 2
+#### Format Figure 2
 from figure_functions import *
 
 figsize = [8,6]    
@@ -200,148 +208,3 @@ ax.axis('equal')
 ax.axis('off')
 
 plt.savefig('Fig2.pdf')
-
-
-
-
-
-# Supplementary materials
-# figsize = [6,6]    
-# fig_suppl = plt.figure(figsize=figsize)
-# 
-# n_rows = 4
-# n_cols = 1
-# pad_x = .06
-# pad_y = .035
-# 
-# tot_width_ax = (1.)/n_cols
-# tot_height_ax = (1.-pad_y)/n_rows
-# width_ax = tot_width_ax-1.5*pad_x
-# height_ax = tot_height_ax-2.*pad_y
-# 
-# ax_dict = {}
-# ax_dict['a']=fig_suppl.add_axes(rect=[pad_x,3.*tot_height_ax+2.*pad_y,width_ax,height_ax])
-# ax_dict['b']=fig_suppl.add_axes(rect=[pad_x,2.*tot_height_ax+2.*pad_y,width_ax,height_ax])
-# ax_dict['c']=fig_suppl.add_axes(rect=[pad_x,1.*tot_height_ax+2.*pad_y,width_ax,height_ax])
-# ax_dict['d']=fig_suppl.add_axes(rect=[pad_x,0.*tot_height_ax+2.*pad_y,width_ax,height_ax])
-# 
-# ax = ax_dict['a']
-# ax.imshow(R_hist,origin='lower',interpolation=None,vmax=10)
-# ax.plot(np.mean(R,0),lw=2,c='.3')
-# ax.plot(np.mean(R,0)-np.std(R,0),lw=1,c='.5')
-# ax.plot(np.mean(R,0)+np.std(R,0),lw=1,c='.5')
-# ax.axis('tight')
-# 
-# ax = ax_dict['b']
-# ax.plot(tvec_s,I_e_vec,lw=1,c='k',ls='--')
-# ax.plot(tvec_s,np.mean(R,0),lw=3,c='.3')
-# ax.plot(tvec_s,np.mean(R,0)-np.std(R,0),lw=2,c='.5')
-# ax.plot(tvec_s,np.mean(R,0)+np.std(R,0),lw=2,c='.5')
-# ax.set_xlim([0,tvec_s[-1]])
-# 
-# ax = ax_dict['c']
-# ax.plot(tvec_s,population_radius)
-# ax.plot(tvec_s,population_phase)
-# ax.set_xlim([0,tvec_s[-1]])
-# 
-# ax = ax_dict['d']
-# ax.plot(tvec_s,flexor['nerve'],label='eng',c='.75')
-# ax.plot(tvec_s,flexor['exc_inp'],label='exc')
-# ax.plot(tvec_s,flexor['inh_inp'],label='inh')
-# ax.plot(tvec_s,flexor['drive'],label='drive')
-# ax.legend(loc='best')
-# ax.set_xlim([0,tvec_s[-1]])
-# plt.savefig('new_fig2_suppl.pdf')
-# 
-# 
-# figsize = [8,3]    
-# fig_psd = plt.figure(figsize=figsize)
-# ax_dict = {}
-# ax_dict['a']=fig_psd.add_subplot(131)
-# ax_dict['b']=fig_psd.add_subplot(132)
-# ax_dict['c']=fig_psd.add_subplot(133)
-# 
-# for key in ax_dict.keys():
-#     ax_dict[key].set_title(key,loc='left',fontweight='bold')
-#     trim_spines(ax_dict[key])
-# 
-# ax = ax_dict['a']
-# ax.semilogx(freqvec,psd_vec/np.max(psd_vec),'k')
-# ax.semilogx(freqvec[peak_idx],psd_vec[peak_idx]/np.max(psd_vec),'b*')
-# 
-# ax.set_xlabel('Frequency (Hz)')
-# ax.set_ylabel('PSD (norm.)')
-# 
-# ax = ax_dict['b']
-# ax.hist(phase_at_peak,bins=np.linspace(-np.pi,np.pi,20))
-# ax.set_xlim((-np.pi,np.pi))
-# ax.set_xlabel('Neuron phase (rad)')
-# ax.set_ylabel('Count')
-# 
-# ax = ax_dict['c']
-# ax.hist(ampl_at_peak/np.max(ampl_at_peak),20)
-# ax.set_xlabel('Rate ampl (norm.)')
-# ax.set_ylabel('Count')
-# 
-# plt.tight_layout()
-# plt.savefig('new_fig2_psd.pdf')
-#   
-# 
-# 
-# figsize = [6,4]    
-# fig_phase = plt.figure(figsize=figsize)
-# ax_dict = {}
-# ax_dict['a']=fig_phase.add_subplot(211)
-# ax_dict['b']=fig_phase.add_subplot(223)
-# ax_dict['c']=fig_phase.add_subplot(224)
-# for key in ax_dict.keys():
-#     ax_dict[key].set_title(key,loc='left',fontweight='bold')
-#     trim_spines(ax_dict[key])
-# 
-# ax = ax_dict['a']
-# ax.plot(tvec_s,population_phase)
-# ax.plot(tvec_s[crossing_idx],np.ones(len(crossing_idx)),'*')
-# ax.set_xlabel('Time (s)')
-# ax.set_ylabel('Population phase (rad)')
-# 
-# ax = ax_dict['b']
-# for i in range(len(periods_s)):
-#     ax.plot(tvec_s[crossing_idx[i]:crossing_idx[i+1]]-tvec_s[crossing_idx[i]],population_phase[crossing_idx[i]:crossing_idx[i+1]])
-# 
-# ax.set_xlabel('Time (s)')
-# ax.set_ylabel('Population phase (rad)')
-# 
-# ax = ax_dict['c']
-# for i in range(len(periods_s)):
-#     ax.plot(np.linspace(0,1.,crossing_idx[i+1]-crossing_idx[i]),\
-#                         population_phase[crossing_idx[i]:crossing_idx[i+1]])
-# 
-# ax.plot([0,1],[-np.pi,np.pi],'k--')
-# 
-# ax.set_xlabel('Time (s)')
-# ax.set_ylabel('Population phase (rad)')
-# 
-# 
-# plt.tight_layout()
-# plt.savefig('new_fig2_phase.pdf')
-# 
-# 
-# # Plot connectivity matrix
-# figsize = [4,4]
-# fig_W = plt.figure(figsize=figsize)
-# ax = fig_W.add_subplot()
-# minmax = np.max(np.abs(W))
-# # ax.imshow(W[::2,::2],cmap='bwr_r',alpha=.75,interpolation=None)
-# ax.pcolor(W[::2,::2],cmap='bwr_r',alpha=.75)#,interpolation=None)
-# 
-# ax.axis('equal')
-# ax.set_xticks([0,100])
-# ax.set_xticklabels(['0','N'])
-# ax.set_yticks([0,100])
-# ax.set_yticklabels(['0','N'])
-# plt.savefig('new_fig2_W_illustration.pdf')
-# from scipy.io import savemat
-# savedict = {}
-# savedict['W']=W
-# savemat('connectivity_matrix.mat',savedict)
-# 

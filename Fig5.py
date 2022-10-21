@@ -1,3 +1,13 @@
+"""
+Script to generate panels fo Figure 5
+
+This script also generates and save nerve readout weights used
+in scripts for Supplementary figure 10 and 12
+
+Henrik Linden 2022
+Rune Berg Lab, University of Copenhagen
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle

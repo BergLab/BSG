@@ -1,3 +1,13 @@
+"""
+Script to generate panels Supplementary figure 12
+
+First run script for main Fig 5 which sets up *.pkl files used by this script
+
+Henrik Linden 2022
+Rune Berg Lab, University of Copenhagen
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
@@ -193,10 +203,7 @@ for i,noise_seed in enumerate([0,7,9]):
             ax_pca[i].plot(proj_PC[0][int(t)],proj_PC[1][int(t)],'ro')
         for t in t_bursts[i]:
             ax_pca[i].plot(proj_PC[0][int(t)],proj_PC[1][int(t)],'bo')
-
-            
-        
-    
+  
     ax_pca[i].axis('equal')
     ax_pca[i].axis('off')
 

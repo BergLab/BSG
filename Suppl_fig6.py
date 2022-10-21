@@ -1,3 +1,11 @@
+"""
+Script to generate panels Supplementary figure 6
+
+Henrik Linden 2022
+Rune Berg Lab, University of Copenhagen
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 from spinalsim import *

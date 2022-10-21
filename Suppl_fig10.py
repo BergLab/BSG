@@ -1,3 +1,13 @@
+"""
+Script to generate panels Supplementary figure 10
+
+First run script for main Fig 5 which sets up *.pkl files used by this script
+
+Henrik Linden 2022
+Rune Berg Lab, University of Copenhagen
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
